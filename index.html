@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LEMUN AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(217, 119, 6, 0.2); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(217, 119, 6, 0.4); }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideInDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes zoomIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
+        .animate-slide-up { animation: slideInUp 0.4s ease-out forwards; }
+        .animate-slide-down { animation: slideInDown 0.2s ease-out forwards; }
+        .animate-zoom-in { animation: zoomIn 0.3s ease-out forwards; }
+        .hidden-safely { display: none !important; }
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+    </style>
+</head>
+<body class="bg-[#fdfbf7] text-stone-800 font-sans h-screen overflow-hidden flex selection:bg-amber-200">
+
+    <div id="app-container" class="h-full w-full flex relative">
+        
+        <!-- LOADING SCREEN -->
+        <div id="loading-screen" class="absolute inset-0 z-50 bg-[#fdfbf7] flex items-center justify-center flex-col space-y-6">
+            <div class="relative">
+                <div class="absolute inset-0 bg-amber-400 blur-2xl opacity-40 rounded-full animate-pulse"></div>
+                <svg class="animate-spin text-amber-500 relative z-10 w-12 h-12" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+            </div>
+            <p id="loading-text" class="text-stone-400 text-sm font-bold tracking-widest uppercase">Waking up LEMUN...</p>
+        </div>
+
+        <!-- AUTH SCREEN -->
+        <div id="auth-screen" class="hidden-safely absolute inset-0 z-40 bg-[#fdfbf7] flex items-center justify-center p-4">
+            <div class="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-amber-300/30 rounded-full mix-blend-multiply filter blur-[80px] animate-pulse"></div>
+            <div class="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-orange-300/20 rounded-full mix-blend-multiply filter blur-[80px] animate-pulse" style="animation-delay: 2s;"></div>
+
+            <div class="bg-white/80 backdrop-blur-3xl p-10 sm:p-12 rounded-[2.5rem] shadow-[0_8px_40px_rgb(0,0,0,0.04)] border border-white w-full max-w-md animate-zoom-in z-10">
+                <div class="flex flex-col items-center mb-10">
+                    <div class="bg-gradient-to-br from-amber-400 to-orange-400 p-4 rounded-2xl shadow-lg shadow-orange-500/20 mb-5" id="auth-logo"></div>
+                    <h1 class="text-4xl font-extrabold text-stone-900 tracking-tight">LEMUN</h1>
+                    <p id="auth-subtitle" class="text-stone-400 font-bold tracking-widest uppercase text-[10px] mt-2">Intelligence, Simplified</p>
+                </div>
+
+                <div id="auth-error" class="hidden-safely mb-6 p-4 bg-red-50 border border-red-100 rounded-2xl text-red-600 text-sm font-medium text-center animate-fade-in"></div>
+
+                <form id="auth-form" class="space-y-5">
+                    <div id="auth-name-group" class="space-y-2 animate-fade-in">
+                        <label id="auth-name-label" class="text-[11px] font-bold text-stone-400 uppercase tracking-widest ml-1">Your Name</label>
+                        <div class="relative">
+                            <span class="absolute left-4 top-4 text-stone-400" id="icon-user"></span>
+                            <input type="text" id="auth-name" placeholder="Optional" class="w-full bg-stone-50 border border-stone-200 rounded-2xl py-4 pl-12 pr-4 outline-none focus:ring-4 focus:ring-amber-400/20 focus:border-amber-400 transition-all text-stone-900 font-medium placeholder-stone-400" />
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <label id="auth-email-label" class="text-[11px] font-bold text-stone-400 uppercase tracking-widest ml-1">Email</label>
+                        <div class="relative">
+                            <span class="absolute left-4 top-4 text-stone-400" id="icon-mail"></span>
+                            <input type="email" id="auth-email" required placeholder="you@example.com" class="w-full bg-stone-50 border border-stone-200 rounded-2xl py-4 pl-12 pr-4 outline-none focus:ring-4 focus:ring-amber-400/20 focus:border-amber-400 transition-all text-stone-900 font-medium placeholder-stone-400" />
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <label id="auth-pwd-label" class="text-[11px] font-bold text-stone-400 uppercase tracking-widest ml-1">Password</label>
+                        <div class="relative">
+                            <span class="absolute left-4 top-4 text-stone-400" id="icon-lock"></span>
+                            <input type="password" id="auth-pwd" required placeholder="••••••••" class="w-full bg-stone-50 border border-stone-200 rounded-2xl py-4 pl-12 pr-4 outline-none focus:ring-4 focus:ring-amber-400/20 focus:border-amber-400 transition-all text-stone-900 font-medium placeholder-stone-400" />
+                        </div>
+                    </div>
+                    <button type="submit" id="auth-submit-btn" class="w-full bg-stone-900 hover:bg-stone-800 disabled:opacity-50 text-white font-bold py-4 rounded-2xl shadow-xl shadow-stone-900/10 transition-all flex items-center justify-center space-x-2 group mt-8">
+                        <span id="auth-submit-text" class="tracking-wide">Create Account</span>
+                        <span class="group-hover:translate-x-1.5 transition-transform" id="icon-arrow"></span>
+                    </button>
+                </form>
+                
+                <button type="button" id="auth-toggle-btn" class="w-full text-center mt-8 text-sm text-stone-500 hover:text-stone-800 transition-colors font-medium">Already registered? Sign in</button>
+            </div>
+        </div>
+
+        <!-- MAIN APP -->
+        <div id="main-screen" class="hidden-safely h-full w-full flex relative">
+            <div id="sidebar-overlay" class="hidden-safely fixed inset-0 bg-stone-900/20 backdrop-blur-sm z-40 md:hidden"></div>
+            
+            <aside id="sidebar" class="fixed md:relative z-40 h-full bg-[#fcfaf5] transition-all duration-300 ease-out flex flex-col shrink-0 overflow-hidden border-r border-stone-200/60 w-72 transform md:translate-x-0 -translate-x-full">
+                <div class="p-6 flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <div class="bg-gradient-to-br from-amber-400 to-orange-400 p-2 rounded-xl shadow-sm shadow-orange-500/20" id="sidebar-logo"></div>
+                        <h1 class="text-2xl font-extrabold tracking-tight text-stone-900">LEMUN</h1>
+                    </div>
+                    <button id="close-sidebar-btn" class="p-2 text-stone-400 hover:bg-stone-200/50 rounded-xl transition-colors md:hidden"></button>
+                </div>
+                
+                <div class="px-5 pb-2">
+                    <button id="new-chat-btn" class="w-full flex items-center justify-center space-x-2 bg-stone-900 hover:bg-stone-800 text-white py-3.5 rounded-2xl shadow-md transition-all font-bold tracking-wide">
+                        <span id="icon-plus"></span><span id="btn-new-chat-text">New Chat</span>
+                    </button>
+                </div>
+                
+                <div class="flex-1 overflow-y-auto px-4 py-4 space-y-1 custom-scrollbar">
+                    <p id="label-history" class="px-2 text-[10px] font-bold text-stone-400 uppercase tracking-widest mb-3">Recent</p>
+                    <div id="chat-list" class="space-y-1"></div>
+                </div>
+                
+                <div class="p-5 border-t border-stone-200/60 bg-[#fcfaf5] space-y-2">
+                    <div class="mb-5 px-4 py-3 bg-white rounded-2xl flex items-center space-x-3 shadow-sm border border-stone-200/60">
+                        <div id="user-avatar" class="bg-gradient-to-br from-stone-100 to-stone-200 text-stone-600 border border-stone-300 rounded-full w-10 h-10 flex items-center justify-center font-extrabold text-sm uppercase">U</div>
+                        <div class="overflow-hidden flex-1">
+                            <p id="user-name-display" class="text-sm font-bold text-stone-900 truncate">User</p>
+                            <p id="user-email-display" class="text-[11px] text-stone-500 truncate font-medium">Logged In</p>
+                        </div>
+                    </div>
+
+                    <button id="open-settings-btn" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-stone-600 hover:bg-stone-200/50 hover:text-stone-900 font-bold transition-all text-sm">
+                        <span id="icon-settings-btn"></span><span id="btn-settings-text">Settings</span>
+                    </button>
+                    <button id="logout-btn" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-red-500 hover:bg-red-50 font-bold transition-all text-sm">
+                        <span id="icon-logout-btn"></span><span id="btn-logout-text">Log Out</span>
+                    </button>
+                </div>
+            </aside>
+
+            <main class="flex-1 flex flex-col h-full relative min-w-0">
+                <div class="absolute top-0 right-0 w-[600px] h-[600px] bg-amber-100/40 rounded-full mix-blend-multiply filter blur-[100px] pointer-events-none"></div>
+
+                <header class="bg-[#fdfbf7]/80 backdrop-blur-xl border-b border-stone-200/50 p-4 sm:px-8 flex items-center justify-between z-30">
+                    <div class="flex items-center">
+                        <button id="open-sidebar-btn" class="p-2.5 mr-4 text-stone-500 bg-white hover:bg-stone-50 rounded-xl shadow-sm border border-stone-200 transition-all md:hidden"></button>
+                        <div>
+                            <h2 id="chat-header-title" class="text-xl font-extrabold truncate md:max-w-md text-stone-900">Loading...</h2>
+                            <div class="flex items-center space-x-3 mt-1">
+                                <p id="label-synced" class="text-[10px] text-amber-600 font-bold uppercase tracking-wider flex items-center"><span id="icon-sparkles" class="mr-1.5 text-amber-500 animate-pulse"></span>Cloud Synced</p>
+                                <p class="text-[10px] text-stone-400 font-bold uppercase tracking-wider flex items-center"><span id="icon-globe-header" class="mr-1.5 text-stone-300"></span><span id="header-lang">English</span></p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center space-x-2">
+                        <div class="relative">
+                            <button id="mode-dropdown-btn" class="flex items-center space-x-2 text-xs px-4 py-2.5 rounded-full shadow-sm transition-all duration-300 border bg-white text-green-700 border-green-200 hover:bg-green-50">
+                                <span id="mode-icon-current"></span>
+                                <span id="mode-text-current" class="hidden sm:inline uppercase tracking-widest font-extrabold">Little Squeeze</span>
+                                <span id="icon-chevron" class="ml-1 transition-transform duration-300 opacity-60"></span>
+                            </button>
+                            <div id="mode-dropdown-overlay" class="hidden-safely fixed inset-0 z-40"></div>
+                            <div id="mode-dropdown-menu" class="hidden-safely absolute right-0 mt-3 w-56 bg-white/95 backdrop-blur-2xl border border-stone-200/80 rounded-2xl shadow-xl z-50 p-2 animate-slide-down">
+                                <button data-mode="little" class="mode-select-opt w-full text-left px-4 py-3.5 rounded-xl text-sm font-bold transition-all bg-amber-100/50 text-amber-900" id="btn-mode-little">Little Squeeze</button>
+                                <button data-mode="big" class="mode-select-opt w-full text-left px-4 py-3.5 rounded-xl text-sm font-bold transition-all hover:bg-amber-50 text-stone-500 hover:text-amber-800" id="btn-mode-big">Big Squeeze</button>
+                                <button data-mode="spicy" class="mode-select-opt w-full text-left px-4 py-3.5 rounded-xl text-sm font-bold transition-all hover:bg-amber-50 text-stone-500 hover:text-amber-800" id="btn-mode-spicy">Spicy Squeeze</button>
+                            </div>
+                        </div>
+                    </div>
+                </header>
+
+                <div id="messages-container" class="flex-1 overflow-y-auto p-4 sm:p-8 space-y-8 pb-36 z-20 scroll-smooth">
+                    <!-- Messages go here -->
+                </div>
+
+                <div class="absolute bottom-6 left-0 right-0 px-4 sm:px-8 z-30 pointer-events-none">
+                    <form id="chat-form" class="relative flex items-center max-w-4xl mx-auto group pointer-events-auto">
+                        <input type="text" id="chat-input" placeholder="Message LEMUN..." autocomplete="off" class="w-full bg-white/90 backdrop-blur-xl border border-stone-200/80 shadow-[0_8px_30px_rgb(0,0,0,0.06)] focus:shadow-[0_8px_30px_rgb(0,0,0,0.1)] focus:border-amber-400 focus:ring-4 focus:ring-amber-400/20 rounded-full py-4 sm:py-5 pl-7 pr-16 text-stone-900 placeholder-stone-400 outline-none transition-all disabled:opacity-50 font-medium text-base" />
+                        <button type="submit" id="chat-submit-btn" disabled class="absolute right-2 top-2 bottom-2 aspect-square flex items-center justify-center bg-stone-900 hover:bg-stone-800 hover:scale-105 disabled:bg-stone-200 disabled:text-stone-400 disabled:hover:scale-100 disabled:shadow-none text-white rounded-full transition-all shadow-md focus:outline-none">
+                            <span id="icon-send"></span>
+                        </button>
+                    </form>
+                    <div id="label-footer" class="text-center mt-3 text-[10px] text-stone-400 font-bold uppercase tracking-widest flex items-center justify-center space-x-2 pointer-events-auto">LEMUN v3.0 • PREMIUM INTERFACE ACTIVE</div>
+                </div>
+            </main>
+        </div>
+
+        <!-- SETTINGS MODAL -->
+        <div id="settings-modal" class="hidden-safely fixed inset-0 bg-stone-900/30 backdrop-blur-md z-50 flex items-center justify-center p-4">
+            <div class="bg-white/95 backdrop-blur-3xl rounded-[2.5rem] shadow-2xl w-full max-w-xl overflow-hidden animate-zoom-in border border-white">
+                <div class="p-8 border-b border-stone-100 flex justify-between items-center">
+                    <div class="flex items-center space-x-3 text-stone-900">
+                        <div class="bg-stone-100 p-2.5 rounded-2xl text-stone-600" id="icon-settings-header"></div>
+                        <h2 id="settings-title" class="text-2xl font-extrabold tracking-tight">Preferences</h2>
+                    </div>
+                    <button id="close-settings-btn" class="text-stone-400 hover:bg-stone-100 p-2 rounded-2xl transition-all"></button>
+                </div>
+                
+                <div class="p-8 space-y-6 overflow-y-auto max-h-[60vh] custom-scrollbar">
+                    <div class="grid grid-cols-2 gap-6">
+                        <div class="space-y-2 relative" id="lang-dropdown-container">
+                            <label class="flex items-center text-xs font-bold text-stone-500 uppercase tracking-widest mb-2">
+                                <span id="icon-globe-setting" class="mr-2"></span> <span id="label-lang">Language</span>
+                            </label>
+                            <button type="button" id="lang-btn" class="w-full p-4 bg-stone-50 border border-stone-200 rounded-2xl text-sm font-bold text-stone-900 focus:ring-4 focus:ring-amber-400/20 focus:border-amber-400 outline-none transition-all flex justify-between items-center shadow-sm">
+                                <span id="lang-btn-text">English</span>
+                                <span id="icon-chevron-lang" class="text-stone-400 transition-transform"></span>
+                            </button>
+                            <div id="lang-menu" class="hidden-safely absolute z-50 w-full mt-2 bg-white border border-stone-200 rounded-2xl shadow-xl overflow-hidden animate-slide-down top-full left-0">
+                                <div class="max-h-48 overflow-y-auto custom-scrollbar" id="lang-options"></div>
+                            </div>
+                        </div>
+
+                        <div class="space-y-2 relative" id="voice-dropdown-container">
+                            <label class="flex items-center text-xs font-bold text-stone-500 uppercase tracking-widest mb-2">
+                                <span id="icon-volume-setting" class="mr-2"></span> <span id="label-voice">Voice Model</span>
+                            </label>
+                            <button type="button" id="voice-btn" class="w-full p-4 bg-stone-50 border border-stone-200 rounded-2xl text-sm font-bold text-stone-900 focus:ring-4 focus:ring-amber-400/20 focus:border-amber-400 outline-none transition-all flex justify-between items-center shadow-sm">
+                                <span id="voice-btn-text">Kore (Female)</span>
+                                <span id="icon-chevron-voice" class="text-stone-400 transition-transform"></span>
+                            </button>
+                            <div id="voice-menu" class="hidden-safely absolute z-50 w-full mt-2 bg-white border border-stone-200 rounded-2xl shadow-xl overflow-hidden animate-slide-down top-full left-0">
+                                <div class="max-h-48 overflow-y-auto custom-scrollbar" id="voice-options"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-2 pt-4 border-t border-stone-100">
+                        <label id="label-base" class="flex items-center text-xs font-bold text-stone-500 uppercase tracking-widest mb-2">
+                            <span id="icon-brain-setting" class="mr-2"></span> Core Directives
+                        </label>
+                        <textarea id="settings-prompt" class="w-full h-32 p-5 bg-stone-50 border border-stone-200 rounded-3xl text-sm text-stone-900 focus:ring-4 focus:ring-amber-400/20 focus:border-amber-400 outline-none transition-all resize-none leading-relaxed shadow-inner"></textarea>
+                    </div>
+                </div>
+                
+                <div class="p-6 border-t border-stone-100 bg-stone-50/50 flex justify-end space-x-4">
+                    <button id="cancel-settings-btn" class="px-6 py-3.5 text-sm font-bold text-stone-500 hover:text-stone-900 hover:bg-stone-200/50 rounded-2xl transition-all">Cancel</button>
+                    <button id="save-settings-btn" class="px-8 py-3.5 bg-stone-900 hover:bg-stone-800 text-white font-bold rounded-2xl shadow-xl shadow-stone-900/10 transition-all flex items-center">Save & Apply</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- MAIN SCRIPT -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js';
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js';
+        import { getFirestore, collection, doc, setDoc, onSnapshot } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js';
+
+        const ICONS = {
+            lemon: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 18c-2.3-2.3-3.1-6.2-1.8-9 1.4-2.8 4.7-4.1 7.8-4.1 3.1 0 6.4 1.3 7.8 4.1 1.3 2.8.5 6.7-1.8 9-2.3 2.3-6.2 2.3-12 0z"/></svg>`,
+            user: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>`,
+            mail: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"></rect><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path></svg>`,
+            lock: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>`,
+            arrowRight: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>`,
+            plus: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>`,
+            message: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>`,
+            settings: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>`,
+            logout: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>`,
+            menu: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>`,
+            x: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>`,
+            sparkles: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"></path></svg>`,
+            globe: `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>`,
+            chevron: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>`,
+            zap: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>`,
+            brain: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 1.98-3A2.5 2.5 0 0 1 9.5 2Z"></path><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-1.98-3A2.5 2.5 0 0 0 14.5 2Z"></path></svg>`,
+            flame: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path></svg>`,
+            send: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>`,
+            volume: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>`,
+            square: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg>`,
+            image: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>`,
+            terminal: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>`,
+            copy: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>`,
+            check: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`
+        };
+
+        const UI_STRINGS = {
+            English: { subtitle: "Intelligence, Simplified", nameOpt: "Your Name", email: "Email", password: "Password", auth: "Sign In", reg: "Create Account", needAcc: "Need an account? Create one", hasAcc: "Already registered? Sign in", resetAcc: "Want to reset your account? Register here", newChat: "New Chat", history: "Recent", loggedIn: "Logged In", settings: "Settings", logout: "Log Out", synced: "Cloud Synced", little: "Little Squeeze", big: "Big Squeeze", spicy: "Spicy Squeeze", ask: "Message LEMUN...", footer: "LEMUN v3.0 • PREMIUM INTERFACE ACTIVE", lang: "Language", voice: "Voice Model", base: "Core Directives", cancel: "Cancel", save: "Save & Apply", loading: "Loading...", read: "Read Aloud", stop: "Stop Audio", painting: "Painting masterpiece...", squeezing: "Squeezing some ideas...", copied: "Copied!", copy: "Copy", script: "script", init: "Initialization complete. I am LEMUN. Welcome back,", errAuth: "Incorrect email or password.", errNoAcc: "No account found. Please register first.", errPwd: "Password must be at least 4 characters.", errErr: "An error occurred. Please try again.", initCore: "Waking up LEMUN...", imgCleared: "Image preserved in local memory." },
+            Spanish: { subtitle: "Inteligencia, Simplificada", nameOpt: "Tu Nombre", email: "Correo", password: "Contraseña", auth: "Iniciar Sesión", reg: "Crear Cuenta", needAcc: "¿Sin cuenta? Crea una", hasAcc: "¿Ya registrado? Inicia sesión", resetAcc: "¿Restablecer cuenta? Regístrate", newChat: "Nuevo Chat", history: "Reciente", loggedIn: "Conectado", settings: "Ajustes", logout: "Salir", synced: "Sincronizado", little: "Little Squeeze", big: "Big Squeeze", spicy: "Spicy Squeeze", ask: "Mensaje a LEMUN...", footer: "LEMUN v3.0 • INTERFAZ PREMIUM ACTIVA", lang: "Idioma", voice: "Modelo de Voz", base: "Directivas Centrales", cancel: "Cancelar", save: "Guardar y Aplicar", loading: "Cargando...", read: "Leer en Voz Alta", stop: "Detener Audio", painting: "Pintando obra maestra...", squeezing: "Exprimiendo ideas...", copied: "¡Copiado!", copy: "Copiar", script: "script", init: "Inicialización completa. Soy LEMUN. Bienvenido,", errAuth: "Correo o contraseña incorrectos.", errNoAcc: "No se encontró cuenta. Regístrate primero.", errPwd: "La contraseña debe tener 4+ caracteres.", errErr: "Ocurrió un error. Intenta de nuevo.", initCore: "Despertando a LEMUN...", imgCleared: "Imagen conservada en memoria local." },
+            French: { subtitle: "L'Intelligence, Simplifiée", nameOpt: "Votre Nom", email: "E-mail", password: "Mot de passe", auth: "Se Connecter", reg: "Créer un Compte", needAcc: "Besoin d'un compte ? Créer", hasAcc: "Déjà inscrit ? Connectez-vous", resetAcc: "Réinitialiser ? Inscrivez-vous", newChat: "Nouveau Chat", history: "Récents", loggedIn: "Connecté", settings: "Paramètres", logout: "Déconnexion", synced: "Synchronisé", little: "Little Squeeze", big: "Big Squeeze", spicy: "Spicy Squeeze", ask: "Message à LEMUN...", footer: "LEMUN v3.0 • INTERFACE PREMIUM", lang: "Langue", voice: "Modèle Vocal", base: "Directives de Base", cancel: "Annuler", save: "Enregistrer", loading: "Chargement...", read: "Lire à Haute Voix", stop: "Arrêter", painting: "Peinture en cours...", squeezing: "Réflexion en cours...", copied: "Copié !", copy: "Copier", script: "script", init: "Initialisation terminée. Je suis LEMUN. Bienvenue,", errAuth: "E-mail ou mot de passe incorrect.", errNoAcc: "Aucun compte trouvé. Veuillez vous inscrire.", errPwd: "Le mot de passe doit contenir 4+ caractères.", errErr: "Une erreur est survenue.", initCore: "Réveil de LEMUN...", imgCleared: "Image conservée en mémoire." },
+            German: { subtitle: "Intelligenz, Vereinfacht", nameOpt: "Dein Name", email: "E-Mail", password: "Passwort", auth: "Anmelden", reg: "Konto erstellen", needAcc: "Kein Konto? Erstellen", hasAcc: "Schon registriert? Anmelden", resetAcc: "Konto zurücksetzen? Hier registrieren", newChat: "Neuer Chat", history: "Zuletzt", loggedIn: "Eingeloggt", settings: "Einstellungen", logout: "Abmelden", synced: "Synchronisiert", little: "Little Squeeze", big: "Big Squeeze", spicy: "Spicy Squeeze", ask: "Nachricht an LEMUN...", footer: "LEMUN v3.0 • PREMIUM SCHNITTSTELLE", lang: "Sprache", voice: "Stimmenmodell", base: "Kernrichtlinien", cancel: "Abbrechen", save: "Speichern", loading: "Lädt...", read: "Vorlesen", stop: "Stoppen", painting: "Meisterwerk wird gemalt...", squeezing: "Ideen werden gepresst...", copied: "Kopiert!", copy: "Kopieren", script: "Skript", init: "Initialisierung abgeschlossen. Ich bin LEMUN. Willkommen,", errAuth: "Falsche E-Mail oder Passwort.", errNoAcc: "Kein Konto gefunden. Bitte registrieren.", errPwd: "Passwort muss 4+ Zeichen lang sein.", errErr: "Ein Fehler ist aufgetreten.", initCore: "LEMUN wird aufgeweckt...", imgCleared: "Bild im lokalen Speicher erhalten." },
+            Japanese: { subtitle: "インテリジェンスをシンプルに", nameOpt: "あなたの名前", email: "メールアドレス", password: "パスワード", auth: "ログイン", reg: "アカウント作成", needAcc: "アカウントを作成", hasAcc: "すでに登録済み？ログイン", resetAcc: "リセットする？ここで登録", newChat: "新しいチャット", history: "最近", loggedIn: "ログイン中", settings: "設定", logout: "ログアウト", synced: "クラウド同期済", little: "Little Squeeze", big: "Big Squeeze", spicy: "Spicy Squeeze", ask: "LEMUNにメッセージ...", footer: "LEMUN v3.0 • プレミアムインターフェース", lang: "言語", voice: "音声モデル", base: "基本命令", cancel: "キャンセル", save: "保存して適用", loading: "読み込み中...", read: "読み上げる", stop: "停止", painting: "傑作を描画中...", squeezing: "アイデアを絞り出し中...", copied: "コピーしました！", copy: "コピー", script: "スクリプト", init: "初期化完了。私はLEMUNです。おかえりなさい、", errAuth: "メールまたはパスワードが間違っています。", errNoAcc: "アカウントがありません。先に登録してください。", errPwd: "パスワードは4文字以上です。", errErr: "エラーが発生しました。", initCore: "LEMUNを起動中...", imgCleared: "画像はローカルメモリに保存されています。" }
+        };
+
+        const LANG_OPTIONS = [
+            { value: 'English', label: 'English' }, { value: 'Spanish', label: 'Español (Spanish)' },
+            { value: 'French', label: 'Français (French)' }, { value: 'German', label: 'Deutsch (German)' },
+            { value: 'Japanese', label: '日本語 (Japanese)' }
+        ];
+
+        const VOICE_OPTIONS = [
+            { value: 'Kore', label: 'Kore (Female)' }, { value: 'Charon', label: 'Charon (Male)' },
+            { value: 'Aoede', label: 'Aoede (Female)' }, { value: 'Fenrir', label: 'Fenrir (Male)' },
+            { value: 'Puck', label: 'Puck (Male)' }, { value: 'Zephyr', label: 'Zephyr (Female)' }
+        ];
+
+        const state = {
+            firebaseUser: null, accountData: null, isAuthenticated: false, isAuthChecking: true, isLoginView: false,
+            chats: [], activeChatId: null, isSidebarOpen: window.innerWidth >= 768,
+            defaultPrompt: "You are LEMUN, a bright, cheerful, and highly intelligent AI. Your current interface has a beautiful, premium aesthetic. Your responses should be helpful, concise, slightly witty, and have a warm tone. You excel at generating code, scripts, and creative ideas.",
+            systemPrompt: "", isSettingsOpen: false, ttsVoice: 'Kore', tempTtsVoice: 'Kore', aiLanguage: 'English', tempAiLanguage: 'English',
+            activeMode: 'little', isModeMenuOpen: false, input: '', isLoading: false, loadingText: '...', error: null, playingIndex: null, unsubChat: null, currentAudio: null
+        };
+        state.systemPrompt = state.defaultPrompt;
+        state.tempPrompt = state.systemPrompt;
+
+        const t = (key) => UI_STRINGS[state.aiLanguage]?.[key] || UI_STRINGS['English'][key];
+
+        const firebaseConfig = typeof window.__firebase_config !== 'undefined' ? JSON.parse(window.__firebase_config) : {};
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const appId = typeof window.__app_id !== 'undefined' ? window.__app_id : 'default-app-id';
+        const API_KEY = "";
+
+        const el = {
+            loadingScreen: document.getElementById('loading-screen'), loadingText: document.getElementById('loading-text'), authScreen: document.getElementById('auth-screen'),
+            mainScreen: document.getElementById('main-screen'), sidebar: document.getElementById('sidebar'), sidebarOverlay: document.getElementById('sidebar-overlay'),
+            chatList: document.getElementById('chat-list'), messagesContainer: document.getElementById('messages-container'), settingsModal: document.getElementById('settings-modal'),
+            chatInput: document.getElementById('chat-input'), chatSubmitBtn: document.getElementById('chat-submit-btn'), authForm: document.getElementById('auth-form'),
+            authError: document.getElementById('auth-error'), authName: document.getElementById('auth-name'), authEmail: document.getElementById('auth-email'), authPwd: document.getElementById('auth-pwd'),
+            authSubmitBtn: document.getElementById('auth-submit-btn'), authToggleBtn: document.getElementById('auth-toggle-btn'), langMenu: document.getElementById('lang-menu'),
+            langBtnText: document.getElementById('lang-btn-text'), voiceMenu: document.getElementById('voice-menu'), voiceBtnText: document.getElementById('voice-btn-text'),
+            modeDropdownMenu: document.getElementById('mode-dropdown-menu'), modeDropdownOverlay: document.getElementById('mode-dropdown-overlay'), chatForm: document.getElementById('chat-form')
+        };
+
+        function createWavBlob(base64Pcm, sampleRate) {
+            const binaryString = window.atob(base64Pcm);
+            const bytes = new Uint8Array(binaryString.length);
+            for (let i = 0; i < binaryString.length; i++) bytes[i] = binaryString.charCodeAt(i);
+            const buffer = new ArrayBuffer(44 + bytes.length);
+            const view = new DataView(buffer);
+            const ws = (offset, s) => { for (let i = 0; i < s.length; i++) view.setUint8(offset + i, s.charCodeAt(i)); };
+            ws(0, 'RIFF'); view.setUint32(4, 36 + bytes.length, true); ws(8, 'WAVE'); ws(12, 'fmt ');
+            view.setUint32(16, 16, true); view.setUint16(20, 1, true); view.setUint16(22, 1, true); view.setUint32(24, sampleRate, true);
+            view.setUint32(28, sampleRate * 2, true); view.setUint16(32, 2, true); view.setUint16(34, 16, true); ws(36, 'data'); view.setUint32(40, bytes.length, true);
+            new Uint8Array(buffer, 44).set(bytes);
+            return new Blob([buffer], { type: 'audio/wav' });
+        }
+
+        function escapeHtml(str) { return str.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#039;'); }
+
+        async function fetchWithRetry(url, options, retries = 5) {
+            const delays = [1000, 2000, 4000, 8000, 16000];
+            for (let i = 0; i < retries; i++) {
+                try {
+                    const res = await fetch(url, options);
+                    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                    return await res.json();
+                } catch (err) {
+                    if (i === retries - 1) throw err;
+                    await new Promise(r => setTimeout(r, delays[i]));
+                }
+            }
+        }
+
+        window.handleCopy = function(btn, codeEncoded) {
+            const code = decodeURIComponent(atob(codeEncoded));
+            const ta = document.createElement("textarea"); ta.value = code; document.body.appendChild(ta); ta.select();
+            try { document.execCommand('copy'); } catch(e) {}
+            document.body.removeChild(ta);
+            const orig = btn.innerHTML; btn.innerHTML = `${ICONS.check} <span>${t('copied')}</span>`;
+            setTimeout(() => btn.innerHTML = orig, 2000);
+        };
+
+        window.switchChat = function(id) {
+            state.activeChatId = id;
+            if (window.innerWidth < 768) toggleSidebar(false);
+            updateUI();
+        };
+
+        window.handleTTS = async function(btn, btnTextSpan, index) {
+            const activeChat = state.chats.find(c => c.id === state.activeChatId);
+            if (!activeChat || !activeChat.messages[index]) return;
+            if (state.playingIndex === index && state.currentAudio) {
+                state.currentAudio.pause(); state.currentAudio = null; state.playingIndex = null; updateTTSButtons(); return;
+            }
+            if (state.currentAudio) { state.currentAudio.pause(); state.currentAudio = null; state.playingIndex = null; }
+            state.playingIndex = 'loading_' + index; updateTTSButtons();
+
+            try {
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${API_KEY}`;
+                const payload = { contents: [{ parts: [{ text: activeChat.messages[index].text }] }], generationConfig: { responseModalities: ["AUDIO"], speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: state.ttsVoice } } } }, model: "gemini-2.5-flash-preview-tts" };
+                const result = await fetchWithRetry(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                const inlineData = result.candidates?.[0]?.content?.parts?.[0]?.inlineData;
+                if (inlineData) {
+                    let sampleRate = 24000;
+                    const rMatch = inlineData.mimeType.match(/rate=(\d+)/); if (rMatch) sampleRate = parseInt(rMatch[1], 10);
+                    const wavUrl = URL.createObjectURL(createWavBlob(inlineData.data, sampleRate));
+                    state.currentAudio = new Audio(wavUrl);
+                    state.currentAudio.onended = () => { state.playingIndex = null; URL.revokeObjectURL(wavUrl); updateTTSButtons(); };
+                    state.playingIndex = index; updateTTSButtons(); state.currentAudio.play();
+                } else { state.playingIndex = null; updateTTSButtons(); }
+            } catch (err) { state.playingIndex = null; updateTTSButtons(); }
+        };
+
+        function updateTTSButtons() {
+            document.querySelectorAll('.tts-btn').forEach(btn => {
+                const idx = parseInt(btn.dataset.index);
+                if (state.playingIndex === 'loading_' + idx) { btn.innerHTML = `<svg class="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"></path></svg> <span>${t('loading')}</span>`; btn.disabled = true; } 
+                else if (state.playingIndex === idx) { btn.innerHTML = `<span class="text-red-500">${ICONS.square}</span> <span>${t('stop')}</span>`; btn.disabled = false; } 
+                else { btn.innerHTML = `${ICONS.volume} <span>${t('read')}</span>`; btn.disabled = (state.playingIndex !== null && String(state.playingIndex).startsWith('loading_')); }
+            });
+        }
+
+        function renderIcons() {
+            document.getElementById('auth-logo').innerHTML = ICONS.lemon; document.getElementById('sidebar-logo').innerHTML = ICONS.lemon;
+            document.getElementById('icon-user').innerHTML = ICONS.user; document.getElementById('icon-mail').innerHTML = ICONS.mail;
+            document.getElementById('icon-lock').innerHTML = ICONS.lock; document.getElementById('icon-arrow').innerHTML = ICONS.arrowRight;
+            document.getElementById('icon-plus').innerHTML = ICONS.plus; document.getElementById('icon-settings-btn').innerHTML = ICONS.settings;
+            document.getElementById('icon-logout-btn').innerHTML = ICONS.logout; document.getElementById('open-sidebar-btn').innerHTML = ICONS.menu;
+            document.getElementById('close-sidebar-btn').innerHTML = ICONS.x; document.getElementById('icon-sparkles').innerHTML = ICONS.sparkles;
+            document.getElementById('icon-globe-header').innerHTML = ICONS.globe; document.getElementById('icon-chevron').innerHTML = ICONS.chevron;
+            document.getElementById('icon-send').innerHTML = ICONS.send; document.getElementById('icon-settings-header').innerHTML = ICONS.settings;
+            document.getElementById('close-settings-btn').innerHTML = ICONS.x; document.getElementById('icon-globe-setting').innerHTML = ICONS.globe;
+            document.getElementById('icon-chevron-lang').innerHTML = ICONS.chevron; document.getElementById('icon-volume-setting').innerHTML = ICONS.volume;
+            document.getElementById('icon-chevron-voice').innerHTML = ICONS.chevron; document.getElementById('icon-brain-setting').innerHTML = ICONS.brain;
+        }
+
+        function updateTranslations() {
+            if(!state.isAuthenticated && el.authScreen.classList.contains('hidden-safely')) return;
+            document.getElementById('loading-text').innerText = t('initCore'); document.getElementById('auth-subtitle').innerText = t('subtitle');
+            document.getElementById('auth-name-label').innerText = t('nameOpt'); document.getElementById('auth-email-label').innerText = t('email');
+            document.getElementById('auth-pwd-label').innerText = t('password');
+            const submitText = state.isAuthLoading ? "" : (state.isLoginView ? t('auth') : t('reg'));
+            if(state.isAuthLoading) el.authSubmitBtn.innerHTML = `<svg class="animate-spin w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"></path></svg>`;
+            else el.authSubmitBtn.innerHTML = `<span class="tracking-wide">${submitText}</span><span class="group-hover:translate-x-1.5 transition-transform">${ICONS.arrowRight}</span>`;
+            el.authToggleBtn.innerText = state.isLoginView ? (state.accountData ? t('resetAcc') : t('needAcc')) : t('hasAcc');
+            document.getElementById('btn-new-chat-text').innerText = t('newChat'); document.getElementById('label-history').innerText = t('history');
+            document.getElementById('btn-settings-text').innerText = t('settings'); document.getElementById('btn-logout-text').innerText = t('logout');
+            document.getElementById('label-synced').innerHTML = `<span class="mr-1.5 text-amber-500 animate-pulse">${ICONS.sparkles}</span>${t('synced')}`;
+            document.getElementById('header-lang').innerText = state.aiLanguage; document.getElementById('mode-text-current').innerText = t(state.activeMode);
+            document.getElementById('btn-mode-little').innerText = t('little'); document.getElementById('btn-mode-big').innerText = t('big'); document.getElementById('btn-mode-spicy').innerText = t('spicy');
+            el.chatInput.placeholder = t('ask'); document.getElementById('label-footer').innerText = t('footer'); document.getElementById('settings-title').innerText = t('settings');
+            document.getElementById('label-lang').innerText = t('lang'); document.getElementById('label-voice').innerText = t('voice');
+            document.getElementById('label-base').innerHTML = `<span class="mr-2">${ICONS.brain}</span> ${t('base')}`;
+            document.getElementById('cancel-settings-btn').innerText = t('cancel'); document.getElementById('save-settings-btn').innerText = t('save');
+            if(state.accountData) {
+                document.getElementById('user-avatar').innerText = state.accountData.name ? state.accountData.name.charAt(0).toUpperCase() : 'U';
+                document.getElementById('user-name-display').innerText = state.accountData.name || 'User'; document.getElementById('user-email-display').innerText = state.accountData.email || t('loggedIn');
+            }
+        }
+
+        function renderChatList() {
+            el.chatList.innerHTML = '';
+            state.chats.forEach(chat => {
+                const btn = document.createElement('button');
+                btn.className = `w-full flex items-center space-x-3 px-3 py-3 rounded-2xl text-left transition-all duration-200 ${state.activeChatId === chat.id ? 'bg-white shadow-sm border border-stone-200/80 text-amber-600 font-bold' : 'text-stone-500 hover:bg-stone-200/50 font-medium border border-transparent'}`;
+                btn.onclick = () => window.switchChat(chat.id);
+                btn.innerHTML = `<span class="${state.activeChatId === chat.id ? 'text-amber-500' : 'text-stone-400'}">${ICONS.message}</span><span class="truncate text-sm">${escapeHtml(chat.title)}</span>`;
+                el.chatList.appendChild(btn);
+            });
+            const activeChat = state.chats.find(c => c.id === state.activeChatId);
+            document.getElementById('chat-header-title').innerText = activeChat ? activeChat.title : 'LEMUN';
+        }
+
+        function renderMessages() {
+            const activeChat = state.chats.find(c => c.id === state.activeChatId) || { messages: [] };
+            el.messagesContainer.innerHTML = '';
+            
+            activeChat.messages.forEach((msg, i) => {
+                const wrapper = document.createElement('div');
+                wrapper.className = `flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} animate-slide-up duration-500`;
+                let contentHTML = '';
+                if(msg.role === 'user') {
+                    contentHTML = `<div class="text-[15px] font-medium leading-relaxed whitespace-pre-wrap">${escapeHtml(msg.text)}</div>`;
+                } else {
+                    const BACKTICKS = '\x60\x60\x60';
+                    const codeBlockRegex = new RegExp("(" + BACKTICKS + "[\\s\\S]*?" + BACKTICKS + ")", "g");
+                    const parts = msg.text ? msg.text.split(codeBlockRegex) : [];
+                    contentHTML = `<div class="space-y-3">`;
+                    parts.forEach(part => {
+                        if (part.startsWith('\x60\x60\x60')) {
+                            const innerRegex = new RegExp(BACKTICKS + "(\\w+)?\\n?([\\s\\S]*?)" + BACKTICKS);
+                            const match = part.match(innerRegex);
+                            if (match) {
+                                const lang = match[1] || ''; const code = match[2].trim();
+                                const encodedCode = btoa(encodeURIComponent(code));
+                                contentHTML += `
+                                <div class="my-5 rounded-2xl overflow-hidden border border-stone-800 shadow-xl">
+                                    <div class="bg-stone-900 px-5 py-3 flex justify-between items-center">
+                                        <div class="flex items-center space-x-2.5"><span class="text-amber-400">${ICONS.terminal}</span><span class="text-xs font-mono text-stone-300 uppercase tracking-widest">${lang || t('script')}</span></div>
+                                        <button onclick="window.handleCopy(this, '${encodedCode}')" class="text-stone-400 hover:text-white transition-colors flex items-center space-x-1.5 text-xs font-medium bg-white/5 hover:bg-white/10 px-3 py-1.5 rounded-lg">${ICONS.copy} <span>${t('copy')}</span></button>
+                                    </div>
+                                    <div class="bg-[#121212] p-5 overflow-x-auto custom-scrollbar"><pre class="text-[13px] font-mono text-stone-200 leading-relaxed whitespace-pre">${escapeHtml(code)}</pre></div>
+                                </div>`;
+                            }
+                        } else {
+                            const pLines = part.split('\n');
+                            contentHTML += `<div class="whitespace-pre-wrap leading-relaxed">`;
+                            pLines.forEach(line => {
+                                if(line.trim() === '') { contentHTML += `<p class="h-3"></p>`; }
+                                else {
+                                    let fmt = line.split(/(\*\*.*?\*\*)/g).map(s => (s.startsWith('**') && s.endsWith('**')) ? `<strong class="font-extrabold">${escapeHtml(s.slice(2, -2))}</strong>` : escapeHtml(s)).join('');
+                                    contentHTML += `<p class="mb-1">${fmt}</p>`;
+                                }
+                            });
+                            contentHTML += `</div>`;
+                        }
+                    });
+                    contentHTML += `</div>`;
+                    contentHTML += `
+                    <div class="mt-5 pt-3 border-t border-stone-100 flex justify-end">
+                        <button data-index="${i}" onclick="window.handleTTS(this, this.querySelector('span'), ${i})" class="tts-btn flex items-center space-x-1.5 px-3 py-2 bg-stone-50 hover:bg-stone-100 text-stone-500 hover:text-stone-800 rounded-xl text-xs font-bold transition-all border border-stone-200/60 disabled:opacity-50">
+                            ${state.playingIndex === i ? `<span class="text-red-500">${ICONS.square}</span>` : ICONS.volume} <span>${state.playingIndex === i ? t('stop') : t('read')}</span>
+                        </button>
+                    </div>`;
+                }
+
+                let imgHTML = '';
+                if(msg.image && msg.image.startsWith('data:image')) { imgHTML = `<img src="${msg.image}" class="mt-5 rounded-2xl border border-stone-100 w-full shadow-md" alt="AI Generated" />`; } 
+                else if(msg.image === "[IMAGE_PLACEHOLDER]") { imgHTML = `<div class="mt-5 p-4 bg-stone-50 rounded-xl text-xs font-bold text-stone-400 border border-dashed border-stone-300 flex items-center space-x-2">${ICONS.image}<span>${t('imgCleared')}</span></div>`; }
+
+                wrapper.innerHTML = `
+                    <div class="flex max-w-[90%] sm:max-w-[75%] ${msg.role === 'user' ? 'flex-row-reverse space-x-reverse' : 'flex-row'} items-end space-x-3">
+                        <div class="shrink-0 w-9 h-9 rounded-full flex items-center justify-center shadow-sm mb-1 ${msg.role === 'user' ? 'bg-gradient-to-br from-amber-400 to-orange-400 text-white' : 'bg-white text-amber-500 border border-stone-200/80'}">
+                            ${msg.role === 'user' ? ICONS.user : ICONS.lemon}
+                        </div>
+                        <div class="p-5 sm:p-6 rounded-[2rem] shadow-sm leading-relaxed ${msg.role === 'user' ? 'bg-gradient-to-br from-amber-400 to-orange-500 text-white rounded-br-md shadow-orange-500/20' : 'bg-white border border-stone-200/60 text-stone-800 rounded-bl-md shadow-[0_4px_20px_rgba(0,0,0,0.02)]'}">
+                            ${contentHTML}${imgHTML}
+                        </div>
+                    </div>`;
+                el.messagesContainer.appendChild(wrapper);
+            });
+
+            if (state.isLoading) {
+                const loader = document.createElement('div'); loader.className = "flex justify-start animate-slide-up duration-500";
+                loader.innerHTML = `<div class="flex items-end space-x-3"><div class="shrink-0 w-9 h-9 rounded-full bg-white text-amber-500 border border-stone-200/80 flex items-center justify-center shadow-sm mb-1">${ICONS.lemon}</div><div class="bg-white border border-stone-200/60 p-5 rounded-[2rem] rounded-bl-md flex items-center space-x-3 shadow-sm"><svg class="animate-spin text-amber-500 w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle class="opacity-25" cx="12" cy="12" r="10"></circle><path class="opacity-75" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><span class="text-sm font-bold text-stone-500 animate-pulse">${state.loadingText}</span></div></div>`;
+                el.messagesContainer.appendChild(loader);
+            }
+            if (state.error) {
+                const errDiv = document.createElement('div'); errDiv.className = "text-center p-4 bg-red-50 border border-red-200 rounded-2xl text-red-600 text-sm font-bold shadow-sm mx-auto max-w-md"; errDiv.innerText = state.error;
+                el.messagesContainer.appendChild(errDiv);
+            }
+            
+            updateTTSButtons();
+            setTimeout(() => el.messagesContainer.scrollTo({ top: el.messagesContainer.scrollHeight, behavior: 'smooth' }), 50);
+        }
+
+        function updateUI() {
+            updateTranslations();
+            if (state.isAuthChecking) { el.loadingScreen.classList.remove('hidden-safely'); el.authScreen.classList.add('hidden-safely'); el.mainScreen.classList.add('hidden-safely'); } 
+            else if (!state.isAuthenticated) { el.loadingScreen.classList.add('hidden-safely'); el.authScreen.classList.remove('hidden-safely'); el.mainScreen.classList.add('hidden-safely'); document.getElementById('auth-name-group').classList.toggle('hidden-safely', state.isLoginView); } 
+            else { el.loadingScreen.classList.add('hidden-safely'); el.authScreen.classList.add('hidden-safely'); el.mainScreen.classList.remove('hidden-safely'); renderChatList(); renderMessages(); }
+
+            el.chatInput.disabled = state.isLoading; el.chatSubmitBtn.disabled = state.isLoading || state.input.trim() === '';
+            el.chatSubmitBtn.innerHTML = (state.input.trim() && !state.isLoading) ? `<span class="translate-x-0.5 -translate-y-0.5 transition-transform">${ICONS.send}</span>` : `<span>${ICONS.send}</span>`;
+            
+            if(state.isSidebarOpen) { el.sidebar.classList.remove('-translate-x-full', 'w-0'); el.sidebar.classList.add('w-72'); el.sidebarOverlay.classList.remove('hidden-safely'); } 
+            else { el.sidebar.classList.add('-translate-x-full', 'w-0'); el.sidebar.classList.remove('w-72'); el.sidebarOverlay.classList.add('hidden-safely'); }
+
+            el.modeDropdownMenu.classList.toggle('hidden-safely', !state.isModeMenuOpen); el.modeDropdownOverlay.classList.toggle('hidden-safely', !state.isModeMenuOpen);
+            document.getElementById('mode-icon-current').innerHTML = state.activeMode === 'little' ? ICONS.zap : (state.activeMode === 'big' ? ICONS.brain : ICONS.flame);
+            
+            el.settingsModal.classList.toggle('hidden-safely', !state.isSettingsOpen);
+            if(state.isSettingsOpen) {
+                document.getElementById('lang-btn-text').innerText = LANG_OPTIONS.find(o => o.value === state.tempAiLanguage)?.label || state.tempAiLanguage;
+                document.getElementById('voice-btn-text').innerText = VOICE_OPTIONS.find(o => o.value === state.tempTtsVoice)?.label || state.tempTtsVoice;
+                document.getElementById('settings-prompt').value = state.tempPrompt;
+            }
+        }
+
+        function toggleSidebar(force) { state.isSidebarOpen = force !== undefined ? force : !state.isSidebarOpen; updateUI(); }
+
+        const serializeMessages = (msgs) => JSON.stringify(msgs.map(m => ({ role: m.role, text: m.text, image: m.image ? "[IMAGE_PLACEHOLDER]" : undefined })));
+
+        async function createNewChatInDB(uid) {
+            const newId = Date.now().toString();
+            const initial = [{ role: 'model', text: `${t('init')} ${state.accountData?.name || 'User'}!` }];
+            await setDoc(doc(db, 'artifacts', appId, 'users', uid, 'chats', newId), { title: t('newChat'), messagesJson: serializeMessages(initial), createdAt: Date.now() });
+            state.activeChatId = newId; updateUI();
+        }
+
+        async function handleAuthSubmit(e) {
+            e.preventDefault(); state.authError = ''; state.isAuthLoading = true; updateUI();
+            try {
+                const formattedEmail = el.authEmail.value.toLowerCase().trim();
+                const profileRef = doc(db, 'artifacts', appId, 'users', state.firebaseUser.uid, 'account', 'profile');
+                if (!state.isLoginView) {
+                    if (el.authPwd.value.length < 4) { state.authError = t('errPwd'); state.isAuthLoading = false; updateUI(); return; }
+                    await setDoc(profileRef, { email: formattedEmail, password: el.authPwd.value, name: el.authName.value || 'User', isLoggedIn: true, settings: { voice: 'Kore', language: 'English', prompt: state.defaultPrompt } });
+                    el.authEmail.value = ''; el.authPwd.value = ''; el.authName.value = '';
+                } else {
+                    if (!state.accountData) { state.authError = t('errNoAcc'); } 
+                    else if (formattedEmail === state.accountData.email && el.authPwd.value === state.accountData.password) {
+                        await setDoc(profileRef, { isLoggedIn: true }, { merge: true }); el.authEmail.value = ''; el.authPwd.value = '';
+                    } else { state.authError = t('errAuth'); }
+                }
+            } catch (err) { state.authError = t('errErr'); } 
+            finally { state.isAuthLoading = false; updateUI(); }
+        }
+
+        async function handleLogOut() {
+            if (!state.firebaseUser) return;
+            if (state.currentAudio) { state.currentAudio.pause(); state.currentAudio = null; } state.playingIndex = null;
+            const profileRef = doc(db, 'artifacts', appId, 'users', state.firebaseUser.uid, 'account', 'profile');
+            await setDoc(profileRef, { isLoggedIn: false }, { merge: true }); state.chats = []; state.activeChatId = null;
+        }
+
+        async function submitChat(e) {
+            e.preventDefault();
+            if (!state.input.trim() || state.isLoading || !state.firebaseUser || !state.activeChatId) return;
+            if (state.currentAudio) { state.currentAudio.pause(); state.currentAudio = null; state.playingIndex = null; }
+            const userText = state.input.trim(); const activeChat = state.chats.find(c => c.id === state.activeChatId);
+            const updatedMsgs = [...activeChat.messages, { role: 'user', text: userText }];
+            const newTitle = activeChat.messages.length <= 1 ? userText.slice(0, 24) + '...' : activeChat.title;
+            activeChat.messages = updatedMsgs; activeChat.title = newTitle;
+            const chatRef = doc(db, 'artifacts', appId, 'users', state.firebaseUser.uid, 'chats', state.activeChatId);
+            await setDoc(chatRef, { title: newTitle, messagesJson: serializeMessages(updatedMsgs) }, { merge: true });
+            state.input = ''; el.chatInput.value = ''; state.isLoading = true; state.loadingText = t('squeezing'); state.error = null; updateUI();
+
+            try {
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${API_KEY}`;
+                const modeInstr = { little: "Fast and concise.", big: "Detailed and structured.", spicy: "Deep expert reasoning." };
+                const imgInstr = `CRITICAL BEHAVIORAL RULE:\n1. You have an image generator. To use it, you MUST include <IMAGE_PROMPT>detailed visual description</IMAGE_PROMPT> in your output.\n2. ONLY generate an image if the user's LATEST message explicitly asks to see, draw, or generate a picture.\n3. DO NOT repeat previous image prompts or code blocks. If the user asks a follow up question (like "what is 1+1"), just answer the question. Do not keep generating the previous image or code!`;
+                const langInstr = `[CRITICAL REQUIREMENT: YOU MUST COMMUNICATE AND TRANSLATE ALL OF YOUR THOUGHTS, RESPONSES, AND OUTPUT EXCLUSIVELY INTO THIS LANGUAGE: ${state.aiLanguage}. However, NEVER translate your name "LEMUN". "LEMUN" is a proper noun. Always keep it exactly as "LEMUN" in all languages.]`;
+
+                const payload = {
+                    contents: updatedMsgs.map((m, idx) => {
+                        let apiText = m.text || "Task completed.";
+                        if (idx === updatedMsgs.length - 1 && m.role === 'user' && state.aiLanguage !== 'English') {
+                            apiText += `\n\n[SYSTEM DIRECTIVE: You MUST process this request and respond exclusively in ${state.aiLanguage}. Do not reply in English. Do NOT translate the name LEMUN.]`;
+                        }
+                        return { role: m.role, parts: [{ text: apiText }] };
+                    }),
+                    systemInstruction: { parts: [{ text: `${state.systemPrompt}\n\n${imgInstr}\n\n${langInstr}\n\nMODE: ${modeInstr[state.activeMode]}` }] }
+                };
+
+                const result = await fetchWithRetry(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                let aiText = result.candidates?.[0]?.content?.parts?.[0]?.text || "I'm sorry, I couldn't process that.";
+                let base64 = null;
+                const imgMatch = aiText.match(/<IMAGE_PROMPT>([\s\S]*?)<\/IMAGE_PROMPT>/i);
+                if (imgMatch) {
+                    state.loadingText = t('painting'); updateUI(); const prompt = imgMatch[1].trim();
+                    aiText = aiText.replace(/<IMAGE_PROMPT>[\s\S]*?<\/IMAGE_PROMPT>/i, '').trim() || t('painting');
+                    const imgRes = await fetchWithRetry(`https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:predict?key=${API_KEY}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ instances: { prompt }, parameters: { sampleCount: 1 } }) });
+                    base64 = imgRes.predictions?.[0]?.bytesBase64Encoded;
+                }
+
+                const finalMsgs = [...updatedMsgs, { role: 'model', text: aiText, image: base64 ? `data:image/png;base64,${base64}` : undefined }];
+                activeChat.messages = finalMsgs;
+                await setDoc(chatRef, { messagesJson: serializeMessages(finalMsgs) }, { merge: true });
+            } catch (err) { state.error = t('errErr'); } 
+            finally { state.isLoading = false; updateUI(); }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderIcons();
+            const initAuth = async () => {
+                if (typeof window.__initial_auth_token !== 'undefined' && window.__initial_auth_token) await signInWithCustomToken(auth, window.__initial_auth_token);
+                else await signInAnonymously(auth);
+            };
+            initAuth();
+
+            onAuthStateChanged(auth, (user) => {
+                state.firebaseUser = user;
+                if (!user) { state.isAuthChecking = false; updateUI(); return; }
+                const profileRef = doc(db, 'artifacts', appId, 'users', user.uid, 'account', 'profile');
+                onSnapshot(profileRef, (docSnap) => {
+                    if (docSnap.exists()) {
+                        const data = docSnap.data(); state.accountData = data;
+                        if (data.settings) { state.ttsVoice = data.settings.voice || 'Kore'; state.aiLanguage = data.settings.language || 'English'; state.systemPrompt = data.settings.prompt || state.defaultPrompt; }
+                        if (data.isLoggedIn) state.isAuthenticated = true; else { state.isAuthenticated = false; state.isLoginView = true; }
+                    } else { state.accountData = null; state.isAuthenticated = false; state.isLoginView = false; }
+                    state.isAuthChecking = false; updateUI();
+                }, () => { state.isAuthChecking = false; updateUI(); });
+
+                if (state.unsubChat) state.unsubChat();
+                const chatsRef = collection(db, 'artifacts', appId, 'users', user.uid, 'chats');
+                state.unsubChat = onSnapshot(chatsRef, (snapshot) => {
+                    if (!state.isAuthenticated) return;
+                    const loadedChats = [];
+                    snapshot.forEach(d => {
+                        const data = d.data(); let parsed = [];
+                        try { parsed = data.messagesJson ? JSON.parse(data.messagesJson) : (data.messages || []); } catch(e){}
+                        loadedChats.push({ id: d.id, title: data.title || t('newChat'), createdAt: data.createdAt || 0, messages: parsed });
+                    });
+                    loadedChats.sort((a, b) => b.createdAt - a.createdAt);
+                    state.chats = loadedChats.map(lc => {
+                        const pc = state.chats.find(p => p.id === lc.id);
+                        if (pc) lc.messages = lc.messages.map((m, i) => (m.image === "[IMAGE_PLACEHOLDER]" && pc.messages[i]?.image?.startsWith('data:image')) ? { ...m, image: pc.messages[i].image } : m);
+                        return lc;
+                    });
+                    if(!state.activeChatId && state.chats.length > 0) state.activeChatId = state.chats[0].id;
+                    if(state.chats.length === 0) createNewChatInDB(user.uid);
+                    updateUI();
+                });
+            });
+
+            el.authToggleBtn.onclick = () => { state.isLoginView = !state.isLoginView; state.authError = ''; updateUI(); };
+            el.authForm.onsubmit = handleAuthSubmit; document.getElementById('logout-btn').onclick = handleLogOut;
+            document.getElementById('new-chat-btn').onclick = () => { if(state.firebaseUser) createNewChatInDB(state.firebaseUser.uid); if(window.innerWidth < 768) toggleSidebar(false); };
+            document.getElementById('open-sidebar-btn').onclick = () => toggleSidebar(true);
+            document.getElementById('close-sidebar-btn').onclick = () => toggleSidebar(false);
+            el.sidebarOverlay.onclick = () => toggleSidebar(false);
+
+            document.getElementById('mode-dropdown-btn').onclick = () => { state.isModeMenuOpen = !state.isModeMenuOpen; updateUI(); };
+            el.modeDropdownOverlay.onclick = () => { state.isModeMenuOpen = false; updateUI(); };
+            document.querySelectorAll('.mode-select-opt').forEach(btn => btn.onclick = (e) => { state.activeMode = e.target.dataset.mode; state.isModeMenuOpen = false; updateUI(); });
+
+            el.chatInput.oninput = (e) => { state.input = e.target.value; updateUI(); }; el.chatForm.onsubmit = submitChat;
+
+            document.getElementById('open-settings-btn').onclick = () => { state.tempPrompt = state.systemPrompt; state.tempTtsVoice = state.ttsVoice; state.tempAiLanguage = state.aiLanguage; state.isSettingsOpen = true; updateUI(); renderCustomDropdowns(); };
+            document.getElementById('close-settings-btn').onclick = () => { state.isSettingsOpen = false; updateUI(); };
+            document.getElementById('cancel-settings-btn').onclick = () => { state.isSettingsOpen = false; updateUI(); };
+            document.getElementById('save-settings-btn').onclick = async () => {
+                state.systemPrompt = document.getElementById('settings-prompt').value; state.ttsVoice = state.tempTtsVoice; state.aiLanguage = state.tempAiLanguage; state.isSettingsOpen = false;
+                if(state.firebaseUser) await setDoc(doc(db, 'artifacts', appId, 'users', state.firebaseUser.uid, 'account', 'profile'), { settings: { voice: state.ttsVoice, language: state.aiLanguage, prompt: state.systemPrompt } }, { merge: true });
+                updateUI();
+            };
+
+            document.getElementById('lang-btn').onclick = () => { el.langMenu.classList.toggle('hidden-safely'); document.getElementById('icon-chevron-lang').classList.toggle('rotate-180'); el.voiceMenu.classList.add('hidden-safely'); document.getElementById('icon-chevron-voice').classList.remove('rotate-180'); };
+            document.getElementById('voice-btn').onclick = () => { el.voiceMenu.classList.toggle('hidden-safely'); document.getElementById('icon-chevron-voice').classList.toggle('rotate-180'); el.langMenu.classList.add('hidden-safely'); document.getElementById('icon-chevron-lang').classList.remove('rotate-180'); };
+            
+            document.addEventListener("mousedown", (e) => {
+                if (!document.getElementById('lang-dropdown-container').contains(e.target)) { el.langMenu.classList.add('hidden-safely'); document.getElementById('icon-chevron-lang').classList.remove('rotate-180'); }
+                if (!document.getElementById('voice-dropdown-container').contains(e.target)) { el.voiceMenu.classList.add('hidden-safely'); document.getElementById('icon-chevron-voice').classList.remove('rotate-180'); }
+            });
+        });
+
+        function renderCustomDropdowns() {
+            const lMenu = document.getElementById('lang-options'); lMenu.innerHTML = '';
+            LANG_OPTIONS.forEach(opt => {
+                const b = document.createElement('button');
+                b.className = `w-full text-left px-4 py-3 text-sm transition-colors ${state.tempAiLanguage === opt.value ? 'bg-amber-100 text-amber-950 font-bold border-l-2 border-amber-500' : 'text-stone-800 hover:bg-stone-100 font-medium border-l-2 border-transparent'}`;
+                b.innerText = opt.label; b.onclick = () => { state.tempAiLanguage = opt.value; document.getElementById('lang-menu').classList.add('hidden-safely'); document.getElementById('icon-chevron-lang').classList.remove('rotate-180'); updateUI(); renderCustomDropdowns(); }; lMenu.appendChild(b);
+            });
+            const vMenu = document.getElementById('voice-options'); vMenu.innerHTML = '';
+            VOICE_OPTIONS.forEach(opt => {
+                const b = document.createElement('button');
+                b.className = `w-full text-left px-4 py-3 text-sm transition-colors ${state.tempTtsVoice === opt.value ? 'bg-amber-100 text-amber-950 font-bold border-l-2 border-amber-500' : 'text-stone-800 hover:bg-stone-100 font-medium border-l-2 border-transparent'}`;
+                b.innerText = opt.label; b.onclick = () => { state.tempTtsVoice = opt.value; document.getElementById('voice-menu').classList.add('hidden-safely'); document.getElementById('icon-chevron-voice').classList.remove('rotate-180'); updateUI(); renderCustomDropdowns(); }; vMenu.appendChild(b);
+            });
+        }
+    </script>
+</body>
+</html>
